@@ -1,0 +1,102 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+class Solution {
+    static void Main(String[] args) {
+        /* Enter your code here. Read input from STDIN. Print output to STDOUT. Your class should be named Solution */
+        string[] arr_0= Console.ReadLine().Split(' ');
+        int rows = Convert.ToInt32(arr_0[0]);
+        int columns = Convert.ToInt32(arr_0[1]);
+        int rotations = Convert.ToInt32(arr_0[2]);
+        
+        //create matrix
+        string[,] matrix = new string[rows,columns];
+        for(int r = 0;r<rows;r++)
+            {
+            string[] arr = Console.ReadLine().Split(' ');
+            for(int c = 0;c<columns;c++)
+                matrix[r,c] = arr[c];
+        }
+        
+        //create ring lists
+        int numberOfRings = 0;
+        if(rows%2==0 && columns%2 ==0)
+            numberOfRings = Math.Min(rows/2,columns/2);
+        else if(rows%2==0)
+            numberOfRings = rows/2;
+        else
+            numberOfRings = columns/2;
+            
+        List<List<string>> rings=new List<List<string>>();    
+        for(int i=0;i<numberOfRings;i++)
+            rings.Add(new List<string>());
+        
+        //Console.Error.WriteLine(rings.Count);
+            
+        for(int i=0;i<numberOfRings;i++)
+            {
+            for(int l=i;l<rows-i;l++)
+                {
+                rings[i].Add(l.ToString()+","+i.ToString());
+            }
+            for(int b=i+1; b<columns-i;b++)
+                {
+                rings[i].Add((rows-i-1).ToString()+","+b.ToString());
+            }
+            for(int r=rows-i-2;r>=i;r--)
+                {
+                rings[i].Add((r).ToString()+","+(columns-i-1).ToString());
+            }
+            if(columns-i-2>i)
+                {                
+                for(int t=columns-i-2;t>i;t--)
+                    {
+                    rings[i].Add(i.ToString()+","+(t).ToString());     
+                }
+            }           
+        }
+        
+        //calculate shift
+        List<int> shifts= new List<int>();
+        for(int i=0;i<rings.Count;i++)
+            {
+            int shift = rotations%rings[i].Count;
+            shifts.Add(shift);
+        }
+        
+        
+        //apply shift
+        string[,] matrixAnswer = new string[rows,columns];
+        for(int i=0;i<rings.Count;i++)
+            {
+            for(int j=0;j<rings[i].Count;j++)
+            {
+                string[] positionMatrix = rings[i][j].Split(',');
+                string element = matrix[Convert.ToInt32(positionMatrix[0]),Convert.ToInt32(positionMatrix[1])];
+                int positionRingNew =0;
+                if(j+shifts[i] >= rings[i].Count)
+                    positionRingNew = (j+shifts[i])-rings[i].Count;
+                else
+                    positionRingNew = j+shifts[i];
+                
+                string[] positionNew = rings[i][positionRingNew].Split(',');
+            
+                //put in new Matrix
+                matrixAnswer[Convert.ToInt32(positionNew[0]),Convert.ToInt32(positionNew[1])]=element;
+            }            
+        }
+        
+        //print answer
+        for(int r=0;r<rows;r++)
+            {
+            string answer ="";
+            string[] arr=new string[columns];
+            for(int c = 0;c<columns;c++)
+            {
+            arr[c]=matrixAnswer[r,c];
+            }
+            answer = string.Join(" ",arr);
+            Console.WriteLine(answer);
+        }
+    }
+}
